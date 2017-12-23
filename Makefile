@@ -8,6 +8,8 @@ $(OK_TESTS): pynetstring.py $(TESTS)
 
 clean:
 	rm -f $(OK_TESTS)
+	rm -rf dist build pynetstring.egg-info pynetstring-*.tar.gz
 
-dist: test setup.py pynetstring.py
-	python3 -m setup.py
+dist: $(OK_TESTS) setup.py pynetstring.py
+	python3 setup.py sdist
+	python3 setup.py bdist_wheel
