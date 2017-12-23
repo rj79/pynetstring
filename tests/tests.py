@@ -1,4 +1,4 @@
-import netstring_bin as netstring
+import pynetstring as netstring
 import unittest
 
 class TestNetString(unittest.TestCase):
