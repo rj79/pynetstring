@@ -1,6 +1,6 @@
 TESTS=tests/tests.py
 OK_TESTS=.ok_tests
-SRCS=$(shell find pynetstring -name '*.py')
+SRCS=$(shell find . -name '*.py')
 all: $(OK_TESTS)
 
 $(OK_TESTS): $(SRCS) $(TESTS)
@@ -8,7 +8,7 @@ $(OK_TESTS): $(SRCS) $(TESTS)
 
 clean:
 	rm -f $(OK_TESTS)
-	rm -rf dist build pynetstring.egg-info pynetstring-*.tar.gz
+	rm -rf dist build pynetstring.egg-info pynetstring-*.tar.gz __pycache__
 
 dist: $(OK_TESTS) setup.py $(SRCS)
 	python3 setup.py sdist
