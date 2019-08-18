@@ -38,6 +38,8 @@ class Decoder:
                     break
                 else:
                     self._length = int(self._buffer[:length_end])
+                    if self._length > 0 and self._buffer[0] == ord(b'0'):
+                        raise Exception('Leading zero in non-empty netstring.')
                     # Consume what has been parsed
                     self._buffer = self._buffer[length_end + 1:]
                     self._state = State.PARSE_DATA

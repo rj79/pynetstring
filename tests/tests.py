@@ -9,14 +9,14 @@ class TestNetString(unittest.TestCase):
 
     def test_leading_zero_in_length_raises_exception_if_data_nonempty(self):
         with self.assertRaises(Exception):
-            self.decode('01:X,')
+            netstring.decode('01:X,')
 
     def test_decode_empty_string(self):
         self.assertEqual([b''], netstring.decode(b'0:,'))
 
     def test_decode_missing_comma_fails(self):
         with self.assertRaises(Exception):
-            self.decode('3:abc_')
+            netstring.decode('3:abc_')
 
     def test_encode_one_byte_string(self):
         self.assertEqual(b'1:X,', netstring.encode('X'))
