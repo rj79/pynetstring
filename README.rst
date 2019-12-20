@@ -13,21 +13,24 @@ Usage
 **Encoding**
 ::
 
-  netstring_bytes = pynetstring.encode('Hello')
   # Will give b'5:Hello,'
-  print(netstring_bytes)
+  print(pynetstring.encode('Hello'))
+
+It is also possible to encode lists of data.
+::
+
+  # Will give [b'5:Hello,', b'5:World,']
+  print(pynetstring.encode(['Hello', 'World']))
 
 **Decoding**
 
 In the simplest case, when we know for sure that the data we are trying to
 decode ends on a netstring boundary we can simply do:
 ::
-
-  # data_list will be a list of bytes.
-  decoded_list = pynetstring.decode('5:Hello,6:World!,')
-  # Will give ['Hello', 'World!']
-  print(decoded_list)
-
+  
+  # Will give [b'Hello', b'World!']
+  print(pynetstring.decode('5:Hello,6:World!,'))
+  
 In many cases however, such when netstring are transmitted over a network, the
 chunks of data that arrive may not necessarily align to netstring boundaries.
 For example a chunk of data may contain a netstring and then parts of the next.
@@ -72,3 +75,14 @@ e.g. UTF-8, you have to explicitly do that conversion.
   print(type(decoded_list[0]))
   # This will return the original unicode string u'Hello World!'
   print(decoded_list[0].decode('utf-8'))
+
+Error handling
+--------------
+A ValueError exception will be raised if trying to decode an invalid 
+netstring.
+::
+ # ValueError exception due to leading zero in non-empty netstring:
+ pynetstring.decode('01:A,')
+
+ # ValueError exception due to missing trailing comma:
+ pynetstring.decode('3:ABC_')
