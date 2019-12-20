@@ -39,7 +39,7 @@ class Decoder:
                 else:
                     self._length = int(self._buffer[:length_end])
                     if self._length > 0 and self._buffer[0] == ord(b'0'):
-                        raise Exception('Leading zero in non-empty netstring.')
+                        raise ValueError('Leading zero in non-empty netstring.')
                     # Consume what has been parsed
                     self._buffer = self._buffer[length_end + 1:]
                     self._state = State.PARSE_DATA
@@ -51,7 +51,7 @@ class Decoder:
                     break
                 else:
                     if self._buffer[self._length] != ord(b','):
-                        raise Exception('Missing trailing comma in "%b"' % (self._buffer))
+                        raise ValueError('Missing trailing comma.')
                     data = self._buffer[:self._length]
                     self._buffer = self._buffer[self._length + 1:]
                     self._decoded.append(bytes(data))
