@@ -14,7 +14,7 @@ Usage
 ::
 
   netstring_bytes = pynetstring.encode('Hello')
-  # Will give b'Hello'
+  # Will give b'5:Hello,'
   print(netstring_bytes)
 
 **Decoding**
@@ -23,24 +23,24 @@ In the simplest case, when we know for sure that the data we are trying to
 decode ends on a netstring boundary we can simply do:
 ::
 
-  # data_list will be an list of bytes.
-  decoded_list = pynetstring.decode('5:Hello,6:World!')
-  # Will give [b'Hello', b'World!']
+  # data_list will be a list of bytes.
+  decoded_list = pynetstring.decode('5:Hello,6:World!,')
+  # Will give ['Hello', 'World!']
   print(decoded_list)
 
-In many cases however, such when netstring data is transmitted over a network,
-the chunks of data that arrive may not align to netstring boundaries.
+In many cases however, such when netstring are transmitted over a network, the
+chunks of data that arrive may not necessarily align to netstring boundaries.
 For example a chunk of data may contain a netstring and then parts of the next.
 To handle this, call Decoder.feed(), which will buffer and parse the data and 
-emit decoded data as soon as it has been fully received.
+emit decoded data as soon as one or more netstrings have been fully received.
 ::
 
   decoder = pynetstring.Decoder()
   # Will give []
   print(decoder.feed('5:He'))
-  # Will give [b'Hello', b'World!']
+  # Will give ['Hello', 'World!']
   print(decoder.feed('llo,6:World!,5:ag'))
-  # Will give [b'again']
+  # Will give ['again']
   print(decoder.feed('ain,'))
 
 
