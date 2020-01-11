@@ -14,7 +14,7 @@ class TestNetString(unittest.TestCase):
         self.assertEqual([b''], netstring.decode(b'0:,'))
 
     def test_decode_missing_comma_fails(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(netstring.IncompleteString):
             netstring.decode('3:abc_')
 
     def test_encode_one_byte_string(self):
@@ -42,3 +42,16 @@ class TestNetString(unittest.TestCase):
 
     def test_encode_sequence(self):
         self.assertEqual([b'3:foo,', b'3:bar,'], netstring.encode(['foo', 'bar']))
+
+    def test_limit_works(self):
+        decoder = netstring.Decoder(1)
+        with self.assertRaises(netstring.TooLong):
+            decoder.feed(b'2:XX,')
+        decoder = netstring.Decoder(100)
+        with self.assertRaises(netstring.TooLong):
+            decoder.feed(b'2222222:XX,')
+        decoder = netstring.Decoder(10)
+        self.assertEqual([b'XXXXXXXXX'], decoder.feed(b'9:XXXXXXXXX,'))
+        self.assertEqual([b'XXXXXXXXXX'], decoder.feed(b'10:XXXXXXXXXX,'))
+        with self.assertRaises(netstring.TooLong):
+            decoder.feed(b'11:XXXXXXXXXXX,')
