@@ -7,9 +7,8 @@ class TestNetString(unittest.TestCase):
         self.assertEqual(b'0:,', netstring.encode(''))
         self.assertEqual(b'0:,', netstring.encode(b''))
 
-    def test_leading_zero_in_length_raises_exception_if_data_nonempty(self):
-        with self.assertRaises(ValueError):
-            netstring.decode('01:X,')
+    def test_leading_zero(self):
+        self.assertEqual([b'X'], netstring.decode('01:X,'))
 
     def test_decode_empty_string(self):
         self.assertEqual([b''], netstring.decode(b'0:,'))

@@ -35,11 +35,11 @@ class Decoder:
                 length_end = self._buffer.find(b':')
                 if length_end == -1:
                     # There is not enough data yet to decode the length
+                    # Compact leading zeroes in buffer
+                    self._buffer = self._buffer[:-1].lstrip(b'0') + self._buffer[-1:]
                     break
                 else:
                     self._length = int(self._buffer[:length_end])
-                    if self._length > 0 and self._buffer[0] == ord(b'0'):
-                        raise ValueError('Leading zero in non-empty netstring.')
                     # Consume what has been parsed
                     self._buffer = self._buffer[length_end + 1:]
                     self._state = State.PARSE_DATA
