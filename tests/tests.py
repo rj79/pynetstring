@@ -23,7 +23,7 @@ class TestNetString(unittest.TestCase):
         self.assertEqual(b'1:X,', netstring.encode(b'X'))
 
     def test_decode_nested(self):
-        self.assertEqual([b'5:Hello,6:World!'], netstring.decode('16:5:Hello,6:World!,,'))
+        self.assertEqual([b'5:Hello,6:World!,'], netstring.decode('17:5:Hello,6:World!,,'))
 
     def test_feed_empty_string_partially(self):
         decoder = netstring.Decoder()
