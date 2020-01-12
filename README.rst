@@ -57,6 +57,16 @@ The receiving side could look something like this:
     for item in decoded_list:
         print(item)
 
+Also Decoder class supports limit on maximal decoded netstring length. It is
+required for network applications to restrict maximal length of input buffer
+in order to prevent memory bloat. Netstring length limit specified as first 
+argument in this case:
+::
+  decoder = pynetstring.Decoder(maxlen=1024)
+
+Decoder will raise TooLong exception as soon as it'll discover next string
+can't fit limit.
+
 Data encoding
 -------------
 Regardless of the type of the data that is sent to encode(), it will always
@@ -78,11 +88,16 @@ e.g. UTF-8, you have to explicitly do that conversion.
 
 Error handling
 --------------
-A ValueError exception will be raised if trying to decode an invalid 
+A ParseError subclass exception will be raised if trying to decode an invalid 
 netstring.
 ::
- # ValueError exception due to leading zero in non-empty netstring:
- pynetstring.decode('01:A,')
-
- # ValueError exception due to missing trailing comma:
+ # IncompleteString exception due to missing trailing comma:
  pynetstring.decode('3:ABC_')
+
+ decoder = Decoder(3)
+ # TooLong exception due to exceeded netstring limit in stream parser:
+ decoder.feed(b'4:ABCD,')
+
+
+All other exceptions of this module can be expected to be subclass of 
+NetstringException.
