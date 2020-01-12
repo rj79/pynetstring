@@ -7,7 +7,7 @@ class TestNetString(unittest.TestCase):
         self.assertEqual(b'0:,', netstring.encode(''))
         self.assertEqual(b'0:,', netstring.encode(b''))
 
-    def test_leading_zero(self):
+    def test_accept_leading_zero(self):
         self.assertEqual([b'X'], netstring.decode('01:X,'))
 
     def test_decode_empty_string(self):
@@ -43,15 +43,41 @@ class TestNetString(unittest.TestCase):
     def test_encode_sequence(self):
         self.assertEqual([b'3:foo,', b'3:bar,'], netstring.encode(['foo', 'bar']))
 
-    def test_limit_works(self):
+    def test_no_limit_error_when_content_shorter(self):
+        decoder = netstring.Decoder(10)
+        try:
+            self.assertEqual([b'XXXXXXXXX'], decoder.feed(b'9:XXXXXXXXX,'))
+        except netstring.TooLong:
+            self.assertFalse(True)
+
+    def test_no_limit_error_when_content_just_right(self):
+        decoder = netstring.Decoder(1)
+        try:
+            self.assertEqual([b'X'], decoder.feed(b'1:X,'))
+        except netstring.TooLong:
+            self.assertFalse(True)
+
+        decoder = netstring.Decoder(10)
+        try:
+            self.assertEqual([b'XXXXXXXXXX'], decoder.feed(b'10:XXXXXXXXXX,'))
+        except netstring.TooLong:
+            self.assertFalse(True)
+
+    def test_limit_error_when_content_too_long(self):
         decoder = netstring.Decoder(1)
         with self.assertRaises(netstring.TooLong):
             decoder.feed(b'2:XX,')
+
+    def test_limit_error_when_missing_comma(self):
+        decoder = netstring.Decoder(10)
+        with self.assertRaises(netstring.IncompleteString):
+            decoder.feed(b'10:XXXXXXXXXXX,')
+
+    def test_limit_error_when_length_declaration_inplausibly_long(self):
         decoder = netstring.Decoder(100)
         with self.assertRaises(netstring.TooLong):
-            decoder.feed(b'2222222:XX,')
-        decoder = netstring.Decoder(10)
-        self.assertEqual([b'XXXXXXXXX'], decoder.feed(b'9:XXXXXXXXX,'))
-        self.assertEqual([b'XXXXXXXXXX'], decoder.feed(b'10:XXXXXXXXXX,'))
-        with self.assertRaises(netstring.TooLong):
-            decoder.feed(b'11:XXXXXXXXXXX,')
+            # The length declaration of a netstring with content of 100 bytes
+            # takes up at most log10(100) + 1 = 3 bytes.
+            # Error raised already here because 4 bytes of length parsed but
+            # no length end marker ":" found yet.
+            decoder.feed(b'1000')
