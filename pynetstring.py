@@ -40,7 +40,7 @@ class Decoder:
         self._length = None
         self._decoded = []
         self._maxlen = maxlen
-        self._maxlen_bytes = math.log(self._maxlen + 1, 10) if self._maxlen else 0
+        self._maxlen_bytes = math.log10(self._maxlen) + 1 if self._maxlen else 0
 
     def feed(self, data):
 
@@ -59,7 +59,7 @@ class Decoder:
                     # Check if length field already too long:
                     if self._maxlen_bytes and len(self._buffer) > self._maxlen_bytes:
                         raise TooLong("Read too many bytes but length end"
-                                      "marker wasn't met.")
+                                      " marker wasn't met.")
                     break
                 else:
                     self._length = int(self._buffer[:length_end])
