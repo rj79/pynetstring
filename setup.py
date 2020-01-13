@@ -8,7 +8,7 @@ def test_suite():
 
 setup(
     name='pynetstring',
-    version='0.3',
+    version='0.4dev',
     py_modules=['pynetstring'],
     packages=['tests'],
     license='MIT',
