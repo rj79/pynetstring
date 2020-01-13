@@ -86,3 +86,17 @@ class TestNetString(unittest.TestCase):
         decoder = netstring.Decoder()
         with self.assertRaises(netstring.ParseError):
             decoder.feed('-1:X,')
+
+    def test_invalid_length_characters_raise_exception(self):
+        decoder = netstring.Decoder()
+        with self.assertRaises(netstring.ParseError):
+            decoder.feed(b'1e2:X,')
+
+        with self.assertRaises(netstring.ParseError):
+            decoder.feed(b'+3:XXX,')
+
+        with self.assertRaises(netstring.ParseError):
+            decoder.feed(b' 3 :XXX,')
+
+        with self.assertRaises(netstring.ParseError):
+            decoder.feed(b'b\n\r\t\v\x0b\x0c +3:XXX,')

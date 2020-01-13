@@ -62,11 +62,16 @@ class Decoder:
                                       " marker wasn't met.")
                     break
                 else:
+                    # Only allow characters 0-9 in the length definition
+                    valid_chars = range(ord(b'0'), ord(b'9') + 1)
+                    if not all(char in valid_chars for char in self._buffer[:length_end]):
+                        raise ParseError('Invalid length characters found.')
+
                     self._length = int(self._buffer[:length_end])
-                    if self._length < 0:
-                        raise ParseError('Negative lengths not allowed.')
+                    
                     if self._maxlen and self._length > self._maxlen:
                         raise TooLong("Specified netstring length is over limit.")
+
                     # Consume what has been parsed
                     self._buffer = self._buffer[length_end + 1:]
                     self._state = State.PARSE_DATA
