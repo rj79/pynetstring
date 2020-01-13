@@ -63,6 +63,8 @@ class Decoder:
                     break
                 else:
                     self._length = int(self._buffer[:length_end])
+                    if self._length < 0:
+                        raise ParseError('Negative lengths not allowed.')
                     if self._maxlen and self._length > self._maxlen:
                         raise TooLong("Specified netstring length is over limit.")
                     # Consume what has been parsed

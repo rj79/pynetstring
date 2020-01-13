@@ -81,3 +81,8 @@ class TestNetString(unittest.TestCase):
             # Error raised already here because 4 bytes of length parsed but
             # no length end marker ":" found yet.
             decoder.feed(b'1000')
+            
+    def test_handle_negative_length(self):
+        decoder = netstring.Decoder()
+        with self.assertRaises(netstring.ParseError):
+            decoder.feed('-1:X,')
