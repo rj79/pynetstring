@@ -72,16 +72,16 @@ class Decoder:
                         else:
                             self._length = self._length * 10 + sym - ZERO
                         if self._maxlen and self._length > self._maxlen:
-                            raise TooLong("Specified netstring length "
-                                          "is over limit.")
+                            raise TooLong('Specified netstring length '
+                                          'is over decoder limit.')
                     elif sym == COLON:
                         if self._length is None:
-                            raise BadLength("No netstring length bytes read.")
+                            raise BadLength('No netstring length bytes read.')
                         self._state = State.PARSE_DATA
                         break
                     else:
-                        raise BadLength("Inappropriate symbol met in netstring "
-                                        "length: %s" % repr(bytes((sym,))))
+                        raise BadLength('Invalid symbol found in netstring '
+                                        'length: %s' % repr(bytes((sym,))))
                 else:
                     # Entire buffer was scanned, but no complete length was read
                     break
