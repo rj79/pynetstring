@@ -102,8 +102,11 @@ netstring.
   # TooLong exception due to exceeded netstring limit in stream parser:
   decoder.feed(b'4:ABCD,')
 
-  # ParseError due to negative length
+  # BadLength due to negative length:
   decoder.feed(b'-1:X,')
+
+  # BadLength due to invalid character in length declaration:
+  decoder.feed(b' 1:X,')
 
 All other exceptions of this module can be expected to be subclass of 
 NetstringException.
