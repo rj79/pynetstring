@@ -84,19 +84,19 @@ class TestNetString(unittest.TestCase):
             
     def test_handle_negative_length(self):
         decoder = netstring.Decoder()
-        with self.assertRaises(netstring.ParseError):
+        with self.assertRaises(netstring.BadLength):
             decoder.feed('-1:X,')
 
     def test_invalid_length_characters_raise_exception(self):
         decoder = netstring.Decoder()
-        with self.assertRaises(netstring.ParseError):
+        with self.assertRaises(netstring.BadLength):
             decoder.feed(b'1e2:X,')
 
-        with self.assertRaises(netstring.ParseError):
+        with self.assertRaises(netstring.BadLength):
             decoder.feed(b'+3:XXX,')
 
-        with self.assertRaises(netstring.ParseError):
+        with self.assertRaises(netstring.BadLength):
             decoder.feed(b' 3 :XXX,')
 
-        with self.assertRaises(netstring.ParseError):
+        with self.assertRaises(netstring.BadLength):
             decoder.feed(b'b\n\r\t\v\x0b\x0c +3:XXX,')
