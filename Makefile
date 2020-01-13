@@ -7,6 +7,7 @@ OK_TESTS=.ok_tests
 OK_VENV=.ok_venv
 OK_REQ=.ok_req
 SRCS=$(shell find . -name '*.py')
+
 all: $(OK_TESTS)
 
 $(OK_VENV):
@@ -28,8 +29,8 @@ dist: $(OK_TESTS) setup.py $(SRCS)
 	$(PYTHON) setup.py bdist_wheel
 	$(PYTHON) -m twine check dist/*
 
-upload:
+upload: dist
 	$(PYTHON) -m twine upload --verbose --repository-url https://test.pypi.org/legacy/ dist/*
 
-timeit:
+timeit: all
 	$(PYTHON) -m timeit -n 1000 -r 100 -s 'import pynetstring' 'pynetstring.decode(b"0:,0:,0:,3:abc,10:0123456789,52:abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,")'
