@@ -19,6 +19,7 @@ setup(
                  'Programming Language :: Python :: 3'],
     description='A module for encoding and decoding netstrings.',
     long_description=open('README.rst').read(),
+    long_description_content_type='text/x-rst',
     install_requires=[],
     python_requires=">=3",
     test_suite='setup.test_suite',
