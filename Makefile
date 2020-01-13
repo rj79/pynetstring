@@ -30,3 +30,6 @@ dist: $(OK_TESTS) setup.py $(SRCS)
 
 upload:
 	$(PYTHON) -m twine upload --verbose --repository-url https://test.pypi.org/legacy/ dist/*
+
+timeit:
+	$(PYTHON) -m timeit -n 1000 -r 100 -s 'import pynetstring' 'pynetstring.decode(b"0:,0:,0:,3:abc,10:0123456789,52:abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,")'
