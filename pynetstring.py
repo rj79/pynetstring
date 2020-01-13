@@ -80,7 +80,8 @@ class Decoder:
                         self._state = State.PARSE_DATA
                         break
                     else:
-                        raise BadLength("Inappropriate symbol met in netstring length: %s" % repr(chr(sym)))
+                        raise BadLength("Inappropriate symbol met in netstring "
+                                        "length: %s" % repr(bytes((sym,))))
                 else:
                     # Entire buffer was scanned, but no complete length was read
                     break
