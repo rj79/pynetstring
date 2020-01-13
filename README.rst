@@ -64,6 +64,7 @@ misuse from malicious senders.
 The netstring length limit is optional and specified as the first argument to 
 the constructor:
 ::
+
   decoder = pynetstring.Decoder(maxlen=1024)
 
 The Decoder will raise TooLong exception as soon as it'll discover next string
@@ -93,13 +94,16 @@ Error handling
 A ParseError subclass exception will be raised if trying to decode an invalid 
 netstring.
 ::
- # IncompleteString exception due to missing trailing comma:
- pynetstring.decode('3:ABC_')
 
- decoder = Decoder(3)
- # TooLong exception due to exceeded netstring limit in stream parser:
- decoder.feed(b'4:ABCD,')
+  # IncompleteString exception due to missing trailing comma:
+  pynetstring.decode('3:ABC_')
 
+  decoder = Decoder(3)
+  # TooLong exception due to exceeded netstring limit in stream parser:
+  decoder.feed(b'4:ABCD,')
+
+  # ParseError due to negative length
+  decoder.feed(b'-1:X,')
 
 All other exceptions of this module can be expected to be subclass of 
 NetstringException.
