@@ -57,15 +57,17 @@ The receiving side could look something like this:
     for item in decoded_list:
         print(item)
 
-Also Decoder class supports limit on maximal decoded netstring length. It is
-required for network applications to restrict maximal length of input buffer
-in order to prevent memory bloat. Netstring length limit specified as first 
-argument in this case:
+Also the Decoder class supports limiting the maximal decoded netstring length.
+This is required for network applications to restrict the maximal length of 
+the input buffer in order to prevent unintentional memory bloat or intentional 
+misuse from malicious senders.
+The netstring length limit is optional and specified as the first argument to 
+the constructor:
 ::
   decoder = pynetstring.Decoder(maxlen=1024)
 
-Decoder will raise TooLong exception as soon as it'll discover next string
-can't fit limit.
+The Decoder will raise TooLong exception as soon as it'll discover next string
+can't fit the limit.
 
 Data encoding
 -------------
