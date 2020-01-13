@@ -1,5 +1,7 @@
 import pynetstring as netstring
 import unittest
+import hashlib
+import os
 
 class TestNetString(unittest.TestCase):
 
@@ -16,6 +18,16 @@ class TestNetString(unittest.TestCase):
     def test_decode_missing_comma_fails(self):
         with self.assertRaises(netstring.IncompleteString):
             netstring.decode('3:abc_')
+
+    def test_decode_incomplete_string_fails(self):
+        with self.assertRaises(netstring.IncompleteString):
+            netstring.decode('3:abc')
+        with self.assertRaises(netstring.IncompleteString):
+            netstring.decode('3:ab')
+        with self.assertRaises(netstring.IncompleteString):
+            netstring.decode('3:')
+        with self.assertRaises(netstring.IncompleteString):
+            netstring.decode('3')
 
     def test_encode_one_byte_string(self):
         self.assertEqual(b'1:X,', netstring.encode('X'))
@@ -100,3 +112,24 @@ class TestNetString(unittest.TestCase):
 
         with self.assertRaises(netstring.ParseError):
             decoder.feed(b'b\n\r\t\v\x0b\x0c +3:XXX,')
+
+    def test_100MB_netstring(self):
+        block_count = 100 * 2 ** 10
+        block_size = 2 ** 10
+        reference_hash = hashlib.sha256()
+        parsed_hash = hashlib.sha256()
+        decoder = netstring.StreamingDecoder()
+
+        # feed netstring header
+        assert [] == decoder.feed(b'%d:' % (block_size * block_count))
+        for _ in range(block_count):
+            block = os.urandom(block_size)
+            reference_hash.update(block)
+            chunks = decoder.feed(block)
+            assert all(chunks)
+            for chunk in chunks:
+                parsed_hash.update(chunk)
+        # feed netstring terminator
+        assert [b''] == decoder.feed(b',')
+        # check encoded and decoded streams equal
+        assert reference_hash.digest() == parsed_hash.digest()

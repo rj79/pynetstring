@@ -4,6 +4,7 @@ ZERO = ord(b'0')
 NINE = ord(b'9')
 COLON = ord(b':')
 COMMA = ord(b',')
+EMPTY = b''
 
 def _encode(data):
     if isinstance(data, str):
@@ -39,33 +40,31 @@ class IncompleteString(ParseError):
 class State(Enum):
     PARSE_LENGTH = 0
     PARSE_DATA = 1
+    PARSE_TERMINATOR = 2
 
 
-class Decoder:
+class StreamingDecoder:
     def __init__(self, maxlen=0):
-        self._buffer = bytearray()
         self._state = State.PARSE_LENGTH
         self._length = None
-        self._decoded = []
         self._maxlen = maxlen
-        self._data_offset = 0
+
+    def pending(self):
+        return not (self._state == State.PARSE_LENGTH and self._length is None)
 
     def feed(self, data):
 
         if isinstance(data, str):
-            data = bytearray(data, 'utf-8')
+            data = bytes(data, 'utf-8')
+        len_data = len(data)
 
-        self._buffer = self._buffer + data
+        decoded = []
+        input_offset = 0
 
-        while True:
+        while input_offset < len_data:
             if self._state == State.PARSE_LENGTH:
-                self._data_offset = 0
-                self._length = None
-                for sym in self._buffer:
-                    self._data_offset += 1
-                    # Avoid copy of entire buffer to cut data portion.
-                    # Just track offset and use it when final string about to
-                    # be extracted
+                for sym in data[input_offset:]:
+                    input_offset += 1
                     if ZERO <= sym <= NINE:
                         if self._length is None:
                             self._length = sym - ZERO
@@ -86,23 +85,55 @@ class Decoder:
                     # Entire buffer was scanned, but no complete length was read
                     break
             if self._state == State.PARSE_DATA:
-                data_end = self._data_offset + self._length
-                if len(self._buffer) < data_end + 1:
-                    # The entire data part including trailing comma has not yet
-                    # been received
-                    break
+                if not self._length:
+                    self._state = State.PARSE_TERMINATOR
                 else:
-                    if self._buffer[data_end] != COMMA:
-                        raise IncompleteString('Missing trailing comma.')
-                    data = self._buffer[self._data_offset:data_end]
-                    self._buffer = self._buffer[data_end + 1:]
-                    self._decoded.append(bytes(data))
-                    self._state = State.PARSE_LENGTH
+                    bytes_remaining = len_data - input_offset
+                    if not bytes_remaining:
+                        break
+                    yield_size = min(self._length, bytes_remaining)
+                    yield_buf = data[input_offset:input_offset + yield_size]
+                    self._length -= yield_size
+                    input_offset += yield_size
+                    decoded.append(yield_buf)
+            if self._state == State.PARSE_TERMINATOR:
+                if input_offset >= len_data:
+                    break
+                if data[input_offset] != COMMA:
+                    raise IncompleteString('Missing trailing comma.')
+                input_offset += 1
+                decoded.append(EMPTY)
+                self._state = State.PARSE_LENGTH
+                self._length = None
 
-        decoded = self._decoded
-        self._decoded = []
         return decoded
+
+
+class Decoder:
+    def __init__(self, maxlen=0):
+        self._decoder = StreamingDecoder(maxlen)
+        self._pending = []
+
+    def pending(self):
+        return self._decoder.pending()
+
+    def feed(self, data):
+        res = []
+
+        parts = self._decoder.feed(data)
+        for part in parts:
+            if part:
+                self._pending.append(part)
+            else:
+                res.append(EMPTY.join(self._pending))
+                self._pending.clear()
+
+        return res
+
 
 def decode(data):
     decoder = Decoder()
-    return decoder.feed(data)
+    res = decoder.feed(data)
+    if decoder.pending():
+        raise IncompleteString("Input ends on unfinished string.")
+    return res
