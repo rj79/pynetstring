@@ -8,7 +8,7 @@ COMMA = ord(b',')
 def _encode(data):
     if isinstance(data, str):
         data = bytes(data, 'utf-8')
-    return bytes(str(len(data)), 'utf-8') + b':' + data + b','
+    return b'%d:%s' % (len(data), data)
 
 def encode(data):
     if isinstance(data, list):
