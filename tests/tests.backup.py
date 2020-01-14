@@ -112,7 +112,7 @@ class TestNetString(unittest.TestCase):
 
         with self.assertRaises(netstring.BadLength):
             decoder.feed(b'b\n\r\t\v\x0b\x0c +3:XXX,')
-
+            
     def test_decoder_not_pending(self):
         decoder = netstring.Decoder()
         decoder.feed('3:abc,')
@@ -125,14 +125,14 @@ class TestNetString(unittest.TestCase):
 
     def test_streaming_decoder_single_bytes(self):
         decoder = netstring.StreamingDecoder()
-
+        
         self.assertEqual([], decoder.feed(b'3'))
         self.assertEqual([], decoder.feed(b':'))
         self.assertEqual([b'a'], decoder.feed(b'a'))
         self.assertEqual([b'b'], decoder.feed(b'b'))
         self.assertEqual([b'c'], decoder.feed(b'c'))
         self.assertEqual([b''], decoder.feed(b','))
-
+        
     def test_streaming_decoder_multiple_netstrings(self):
         decoder = netstring.StreamingDecoder()
 
@@ -143,8 +143,8 @@ class TestNetString(unittest.TestCase):
         decoder = netstring.StreamingDecoder()
         self.assertEqual([b'abcd',  b'', b'!!!!',  b'', b'', b'12'],
                          decoder.feed('4:abcd,4:!!!!,0:,4:12'))
-
-    def test_100MB_netstring(self):
+        
+    def xtest_100MB_netstring(self):
         block_count = 100 * 2 ** 10
         block_size = 2 ** 10
         reference_hash = hashlib.sha256()
@@ -152,15 +152,15 @@ class TestNetString(unittest.TestCase):
         decoder = netstring.StreamingDecoder()
 
         # feed netstring header
-        self.assertEqual([], decoder.feed(b'%d:' % (block_size * block_count)))
+        assert [] == decoder.feed(b'%d:' % (block_size * block_count))
         for _ in range(block_count):
             block = os.urandom(block_size)
             reference_hash.update(block)
             chunks = decoder.feed(block)
-            self.assertTrue(all(chunks))
+            assert all(chunks)
             for chunk in chunks:
                 parsed_hash.update(chunk)
         # feed netstring terminator
-        self.assertEqual([b''], decoder.feed(b','))
+        assert [b''] == decoder.feed(b',')
         # check encoded and decoded streams equal
-        self.assertEqual(reference_hash.digest(), parsed_hash.digest())
+        assert reference_hash.digest() == parsed_hash.digest()
