@@ -47,6 +47,19 @@ emit decoded data as soon as one or more netstrings have been fully received.
   print(decoder.feed('ain,'))
 
 
+It is possible at any moment to check if there is partial data which is still
+pending to be returned from feed().
+
+::
+
+  decoder.feed('3:ab')
+  # Will return True
+  print(decoder.pending())
+  decoder.feed('c,')
+  # Will return False
+  print(decoder.pending())
+
+
 The receiving side could look something like this:
 ::
 
@@ -72,21 +85,25 @@ can't fit the limit.
 
 **Stream decoding**
 
-pynetstring provides StreamingDecoder class for cases when you need to decode
-stream of netstrings where individual netstring may not fit in memory buffer 
-or parts of it should be extracted before entire netstring appear in one piece.
+pynetstring provides a StreamingDecoder class for cases when you need to 
+decode a stream of very large netstrings where individual netstrings may not 
+fit in memory or data should be processed before the entire netstring has been
+transmitted.
 
-StreamingDecoder has interface similar to Decoder class, but it's feed() method
-returns parts of decoded netstrings as soon as they are extracted. End of
-individual string signalized with an empty bytestring in sequence. In order to
-collect returned strings you should accumulate fragments from returned sequence
-until empty binary string met. After each empty string in sequence you should
-start over accumulating outputs into a new string.
+StreamingDecoder has an interface similar to Decoder class, but its feed() 
+method returns parts of the decoded netstrings as soon as they are extracted.
+The end of each individual string is signalized with an empty bytestring in 
+the sequence.
+In order to the collect returned strings you should accumulate the fragments 
+from the returned sequence until an empty binary string encountered.
+After each empty string in sequence you should start over accumulating outputs
+into a new string.
 
-For example, returned sequence [ b'ab', b'cd', b'', b'!!!!', b'', b'', b'12' ]
-means we have received three complete string b'abcd', b'!!!!' and b'', and
-part of one incomplete netstring b'12' (further parts of which will appear in
-subsequent calls of feed() buffer with new data).
+For example, if feed() returns the sequence 
+[ b'ab', b'cd', b'', b'!!!!', b'', b'', b'12' ] it means we have so far 
+received three complete strings: b'abcd', b'!!!!' and b'', and part of one 
+incomplete netstring starting with b'12' (further parts of which will appear 
+in subsequent calls to feed()).
 
 Data encoding
 -------------
@@ -116,12 +133,12 @@ netstring.
   # IncompleteString exception due to missing trailing comma:
   pynetstring.decode('3:ABC_')
 
+  # BadLength due to no length specified
+  pynetstring.decode(b' :X,')
+
   decoder = Decoder(3)
   # TooLong exception due to exceeded netstring limit in stream parser:
   decoder.feed(b'4:ABCD,')
-
-  # BadLength due to negative length:
-  decoder.feed(b'-1:X,')
 
   # BadLength due to invalid character in length declaration:
   decoder.feed(b' 1:X,')
