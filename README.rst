@@ -31,11 +31,13 @@ decode ends on a netstring boundary we can simply do:
   # Will give [b'Hello', b'World!']
   print(pynetstring.decode('5:Hello,6:World!,'))
   
-In many cases however, such when netstring are transmitted over a network, the
-chunks of data that arrive may not necessarily align to netstring boundaries.
-For example a chunk of data may contain a netstring and then parts of the next.
-To handle this, call Decoder.feed(), which will buffer and parse the data and 
-emit decoded data as soon as one or more netstrings have been fully received.
+In many cases however, such when netstrings are transmitted over a network,
+the chunks of data that arrive may not necessarily align to netstring
+boundaries. For example a chunk of data may contain a netstring and then
+parts of the next. To handle this, create a decoder object and call its
+feed() method repeatedly as data comes in, which will buffer and parse
+the incoming data and emit decoded data as soon as one or more netstrings
+have been fully received.
 ::
 
   decoder = pynetstring.Decoder()
@@ -104,6 +106,20 @@ For example, if feed() returns the sequence
 received three complete strings: b'abcd', b'!!!!' and b'', and part of one 
 incomplete netstring starting with b'12' (further parts of which will appear 
 in subsequent calls to feed()).
+
+::
+
+  decoder = pynetstring.StreamingDecoder()
+  # Returns []
+  decoder.feed('4:')
+  # Returns [b'12']
+  decoder.feed('12')
+  # Returns [b'34']
+  decoder.feed('34')
+  # Returns [b'', b['ab']]
+  decoder.feed(',2:ab')
+  # Returns [b'']
+  decoder.feed(',')
 
 Data encoding
 -------------
