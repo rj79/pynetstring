@@ -70,6 +70,24 @@ the constructor:
 The Decoder will raise TooLong exception as soon as it'll discover next string
 can't fit the limit.
 
+**Stream decoding**
+
+pynetstring provides StreamingDecoder class for cases when you need to decode
+stream of netstrings where individual netstring may not fit in memory buffer 
+or parts of it should be extracted before entire netstring appear in one piece.
+
+StreamingDecoder has interface similar to Decoder class, but it's feed() method
+returns parts of decoded netstrings as soon as they are extracted. End of
+individual string signalized with an empty bytestring in sequence. In order to
+collect returned strings you should accumulate fragments from returned sequence
+until empty binary string met. After each empty string in sequence you should
+start over accumulating outputs into a new string.
+
+For example, returned sequence [ b'ab', b'cd', b'', b'!!!!', b'', b'', b'12' ]
+means we have received three complete string b'abcd', b'!!!!' and b'', and
+part of one incomplete netstring b'12' (further parts of which will appear in
+subsequent calls of feed() buffer with new data).
+
 Data encoding
 -------------
 Regardless of the type of the data that is sent to encode(), it will always
