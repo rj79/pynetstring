@@ -89,7 +89,7 @@ class StreamingDecoder:
                     self._state = State.PARSE_TERMINATOR
                 else:
                     bytes_remaining = len_data - input_offset
-                    if not bytes_remaining:
+                    if bytes_remaining == 0:
                         break
                     yield_size = min(self._length, bytes_remaining)
                     yield_buf = data[input_offset:input_offset + yield_size]
