@@ -9,7 +9,7 @@ EMPTY = b''
 def _encode(data):
     if isinstance(data, str):
         data = bytes(data, 'utf-8')
-    return b'%d:%s' % (len(data), data)
+    return b'%d:%s,' % (len(data), data)
 
 def encode(data):
     if isinstance(data, list):
