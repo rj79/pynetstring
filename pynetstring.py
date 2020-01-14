@@ -85,7 +85,7 @@ class StreamingDecoder:
                     # Entire buffer was scanned, but no complete length was read
                     break
             if self._state == State.PARSE_DATA:
-                if not self._length:
+                if self._length == 0:
                     self._state = State.PARSE_TERMINATOR
                 else:
                     bytes_remaining = len_data - input_offset
