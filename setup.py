@@ -21,7 +21,7 @@ setup(
     long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
     install_requires=[],
-    python_requires=">=3",
+    python_requires=">=3.4",
     test_suite='setup.test_suite',
     url='https://github.com/rj79/pynetstring',
     author='Robert Johansson',

@@ -152,7 +152,7 @@ class TestNetString(unittest.TestCase):
         decoder = netstring.StreamingDecoder()
 
         # feed netstring header
-        self.assertEqual([], decoder.feed(b'%d:' % (block_size * block_count)))
+        self.assertEqual([], decoder.feed(bytes(str(block_size * block_count), 'utf-8') + b':'))
         for _ in range(block_count):
             block = os.urandom(block_size)
             reference_hash.update(block)

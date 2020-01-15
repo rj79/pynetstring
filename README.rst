@@ -4,10 +4,6 @@ pynetstring
 A module for encoding and decoding netstrings. See the definition of netstrings
 at https://cr.yp.to/proto/netstrings.txt.
 
-Requirements
-------------
-Pynetstring is written for Python 3.
-
 Usage
 -----
 **Encoding**
