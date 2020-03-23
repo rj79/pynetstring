@@ -146,12 +146,13 @@ netstring.
   pynetstring.decode('3:ABC_')
 
   # BadLength due to no length specified
-  pynetstring.decode(b' :X,')
+  pynetstring.decode(b':X,')
 
-  decoder = Decoder(3)
+  decoder = pynetstring.Decoder(3)
   # TooLong exception due to exceeded netstring limit in stream parser:
   decoder.feed(b'4:ABCD,')
 
+  decoder = pynetstring.Decoder()
   # BadLength due to invalid character in length declaration:
   decoder.feed(b' 1:X,')
 
