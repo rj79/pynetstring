@@ -115,13 +115,23 @@ class TestNetString(unittest.TestCase):
 
     def test_decoder_not_pending(self):
         decoder = netstring.Decoder()
+        self.assertFalse(decoder.pending())
+
         decoder.feed('3:abc,')
         self.assertFalse(decoder.pending())
 
     def test_decoder_pending(self):
         decoder = netstring.Decoder()
-        decoder.feed('3:abc,0:')
+        decoder.feed('0')
         self.assertTrue(decoder.pending())
+        decoder.feed(':,')
+        self.assertFalse(decoder.pending())
+
+        decoder2 = netstring.Decoder()
+        decoder2.feed('3:abc,1')
+        self.assertTrue(decoder2.pending())
+        decoder2.feed(':X,')
+        self.assertFalse(decoder2.pending())
 
     def test_streaming_decoder_single_bytes(self):
         decoder = netstring.StreamingDecoder()
