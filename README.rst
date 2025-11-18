@@ -29,11 +29,11 @@ decode ends on a netstring boundary we can simply do:
   
 In many cases however, such when netstrings are transmitted over a network,
 the chunks of data that arrive may not necessarily align to netstring
-boundaries. For example a chunk of data may contain a netstring and then
-parts of the next. To handle this, create a decoder object and call its
-feed() method repeatedly as data comes in, which will buffer and parse
-the incoming data and emit decoded data as soon as one or more netstrings
-have been fully received.
+boundaries. For example a chunk of data may contain a netstring and then parts 
+of the next. To handle this, create a decoder object and call its feed() method 
+repeatedly as data comes in. The decoder will buffer and parse the incoming 
+data and emit decoded data as soon as one or more netstrings have been fully 
+received.
 ::
 
   decoder = pynetstring.Decoder()
@@ -78,24 +78,26 @@ the constructor:
 
   decoder = pynetstring.Decoder(maxlen=1024)
 
-The Decoder will raise TooLong exception as soon as it'll discover next string
-can't fit the limit.
+The Decoder will raise a TooLong exception as soon as it discovers that the 
+next string can't fit the limit.
 
 **Stream decoding**
 
-pynetstring provides a StreamingDecoder class for cases when you need to 
-decode a stream of very large netstrings where individual netstrings may not 
-fit in memory or data should be processed before the entire netstring has been
-transmitted.
+pynetstring provides a StreamingDecoder class for cases when you need to decode 
+a stream of very large netstrings where individual netstrings may not fit in 
+memory or in cases where received data should be processed before the entire 
+netstring has been transmitted.
 
 StreamingDecoder has an interface similar to Decoder class, but its feed() 
-method returns parts of the decoded netstrings as soon as they are extracted.
-The end of each individual string is signalized with an empty bytestring in 
+method returns parts of the decoded netstrings as soon as they are extracted. 
+
+The end of each individual string is signalled with an empty bytestring in 
 the sequence.
-In order to the collect returned strings you should accumulate the fragments 
-from the returned sequence until an empty binary string encountered.
-After each empty string in sequence you should start over accumulating outputs
-into a new string.
+
+In order to collect the decoded strings you should accumulate the string 
+fragments from the returned sequence until an empty binary string encountered.
+After each empty string in the sequence you should start over accumulating 
+outputs into a new string.
 
 For example, if feed() returns the sequence 
 [ b'ab', b'cd', b'', b'!!!!', b'', b'', b'12' ] it means we have so far 
